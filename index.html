@@ -46,6 +46,8 @@
     <input type="date" id="date" />
 
     <button id="export">Export GeoJSON</button>
+
+    <label><input type="checkbox" id="toggle-highlight" /> Highlight Rivers</label>
   </div>
 
   <script>
@@ -158,6 +160,39 @@
       const dateISO = dateInput.value || todayISO;
       setImageryLayer(e.target.value, dateISO);
     });
+    
+    // Initialize your base imagery layer
+  setImageryLayer(layerSelect.value, dateInput.value);
+
+  // --- Add your new highlight layer code here ---
+  let highlightLayer = null;
+
+  function loadHighlightLayer() {
+    fetch('data/rivers.geojson')
+      .then(response => response.json())
+      .then(data => {
+        highlightLayer = L.geoJSON(data, {
+          style: {
+            color: 'blue',
+            weight: 3,
+            opacity: 0.7
+          }
+        });
+      })
+      .catch(error => console.error('Failed to load highlight layer:', error));
+  }
+
+  loadHighlightLayer();
+
+  document.getElementById('toggle-highlight').addEventListener('change', (e) => {
+    if (!highlightLayer) return;
+
+    if (e.target.checked) {
+      highlightLayer.addTo(map);
+    } else {
+      map.removeLayer(highlightLayer);
+    }
+  });
   </script>
 </body>
 </html>
